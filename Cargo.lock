@@ -273,6 +273,7 @@ name = "bevy_card"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "rand",
 ]
 
 [[package]]
