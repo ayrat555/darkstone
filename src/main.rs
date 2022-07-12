@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use rand::seq::SliceRandom;
 
-const SPRITE_SCALE: f32 = 0.2;
+const SPRITE_SCALE: f32 = 0.1;
 
 fn main() {
     App::new()
@@ -9,7 +9,7 @@ fn main() {
         .insert_resource(WindowDescriptor {
             title: "Darkstone".to_string(),
             width: 900.0,
-            height: 1200.0,
+            height: 900.0,
             ..Default::default()
         })
         .insert_resource(Msaa::default())
@@ -27,19 +27,19 @@ fn setup_system(
     commands.spawn_bundle(OrthographicCameraBundle::new_2d());
 
     let cards: Vec<HandleUntyped> = asset_server.load_folder("cards").unwrap();
-    let tile_size = tile_size(window, cards.len());
+    let tile_size = tile_size(&window, cards.len());
 
-    let board_size = (5.0, 5.0);
+    let board_size = (cards.len(), cards.len());
 
-    let board_position = Vec3::new(-(board_size.0 / 2.), -(board_size.1 / 2.), 0.);
+    let board_position = Vec3::new(-(window.width / 2.), -(window.height / 2.), 0.);
 
     commands
         .spawn()
         .insert(Transform::from_translation(board_position))
         .insert(GlobalTransform::default())
         .with_children(|parent| {
-            for x in 1..(board_size.0 as u16) {
-                for y in 1..(board_size.1 as u16) {
+            for x in 0..(board_size.0 as u16) {
+                for y in 0..(board_size.1 as u16) {
                     let random_card = cards
                         .choose(&mut rand::thread_rng())
                         .unwrap()
@@ -51,8 +51,8 @@ fn setup_system(
                         transform: Transform {
                             scale: Vec3::new(SPRITE_SCALE, SPRITE_SCALE, 1.),
                             translation: Vec3::new(
-                                (x as f32 * tile_size) - (tile_size / 2.),
-                                (y as f32 * tile_size) - (tile_size / 2.),
+                                (x + 1) as f32 * tile_size,
+                                (y + 1) as f32 * tile_size,
                                 1.,
                             ),
                             ..Default::default()
@@ -64,6 +64,6 @@ fn setup_system(
         });
 }
 
-fn tile_size(window: Res<WindowDescriptor>, card_count: usize) -> f32 {
-    window.width / card_count as f32
+fn tile_size(window: &Res<WindowDescriptor>, card_count: usize) -> f32 {
+    (window.width - window.width / card_count as f32) / card_count as f32
 }
